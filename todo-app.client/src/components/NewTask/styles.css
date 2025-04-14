@@ -1,0 +1,10 @@
+.new-task {
+  form {
+    display: flex;
+    gap: 1rem;
+
+    input {
+      width: 25rem;
+    }
+  }
+}

@@ -1,0 +1,44 @@
+.task-card {
+  width: 40rem;
+  display: flex;
+  justify-content: space-between;
+  transition: 100ms;
+
+  .task-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    .task-progress {
+      width: 6rem;
+    }
+    
+    .task-priority {
+      width: 2rem;
+
+      input {
+        padding: 4px 0;
+      }
+    }
+  }
+  
+  .task-card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0; 
+    width: 100%;
+    
+    .task-name {
+      width: 20rem;
+      
+      input {
+        padding: 4px 0;
+      }
+    }
+  }
+}
+
+.task-card:hover {
+  background-color: #f0f0f0;
+}
