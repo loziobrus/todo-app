@@ -34,17 +34,32 @@ const NewTask = () => {
       <form onSubmit={handleAddTask}>
         <TextField
           required
+          slotProps={{
+            htmlInput: {
+              "data-testid": "newTask.input",
+            },
+          }}
           inputRef={inputRef}
           placeholder="New task"
           variant="outlined"
           onChange={handleInputChange}
         />
-        <Button type="submit" variant="contained" color="primary">
+        <Button
+          data-testid="newTask.addButton"
+          type="submit"
+          variant="contained"
+          color="primary"
+        >
           <Add />
         </Button>
       </form>
       {error ? (
-        <Typography variant="h6" component="p" color="error">
+        <Typography
+          data-testid="newTask.errorMessage"
+          variant="h6"
+          component="p"
+          color="error"
+        >
           {error}
         </Typography>
       ) : null}
