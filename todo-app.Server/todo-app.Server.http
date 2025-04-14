@@ -1,35 +1,30 @@
 @todo_app.Server_HostAddress = http://localhost:5210
 
-GET {{todo_app.Server_HostAddress}}/task/getTaskList
+GET {{todo_app.Server_HostAddress}}/api/task/getTaskList
 Accept: application/json
 
 ###
 
-POST {{todo_app.Server_HostAddress}}/task/
+POST {{todo_app.Server_HostAddress}}/api/task/add
 Content-Type: application/json
 
-{
-    "Id": 3,
-    "Name": "Taaaask",
-    "Priority": 1,
-    "Status": 0
-}
+"Taaaask"
 
 ###
 
-PUT {{todo_app.Server_HostAddress}}/task/3/edit
+PUT {{todo_app.Server_HostAddress}}/api/task/f29a17dd-0ca8-430a-9633-1f47ebf1c801/edit
 Content-Type: application/json
 
 {
-    "Id": 3,
-    "Name": "Taaaaask",
+    "Id": "f29a17dd-0ca8-430a-9633-1f47ebf1c801",
+    "Name": "bla bla bla",
     "Priority": 1,
     "Status": 2
 }
 
 ###
 
-DELETE {{todo_app.Server_HostAddress}}/task/3/delete
+DELETE {{todo_app.Server_HostAddress}}/api/task/f29a17dd-0ca8-430a-9633-1f47ebf1c801/delete
 Content-Type: application/json
 
 ###

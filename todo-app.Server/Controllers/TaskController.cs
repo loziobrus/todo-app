@@ -5,7 +5,7 @@ using todo_app.Server.Models;
 namespace todo_app.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class TaskController : ControllerBase
     {
         private readonly ILogger<TaskController> _logger;
@@ -22,40 +22,43 @@ namespace todo_app.Server.Controllers
         [HttpGet("getTaskList", Name = "GetTaskList")]
         public IActionResult GetTaskList()
         {
-            var tasks = _memoryCache.Get<List<Models.Task>>(CACHE_KEY) ?? new List<Models.Task>();
+            List<Models.Task> tasks = _memoryCache.Get<List<Models.Task>>(CACHE_KEY)?.OrderBy(o => o.Priority).ToList() ?? new List<Models.Task>();
 
             return Ok(tasks);
         }
 
-        [HttpPost(Name = "CreateTask")]
-        public IActionResult AddNewTask([FromBody] Models.Task newTask)
+        [HttpPost("add", Name = "CreateTask")]
+        public IActionResult AddNewTask([FromBody] string taskName)
         {
             var tasks = _memoryCache.Get<List<Models.Task>>(CACHE_KEY) ?? new List<Models.Task>();
 
-            if (tasks.Any(task => task.Id == newTask.Id))
-            {
-                return BadRequest("Task with this Id already exists.");
-            }
-
-            if (tasks.Any(task => task.Name == newTask.Name))
+            if (tasks.Any(task => task.Name == taskName))
             {
                 return BadRequest("Task with this name already exists.");
             }
 
-            if (string.IsNullOrEmpty(newTask.Name))
+            if (string.IsNullOrEmpty(taskName))
             {
                 return BadRequest("Task name cannot be empty.");
             }
+
+            var newTask = new Models.Task
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = taskName,
+                Priority = 1,
+                Status = Status.NotStarted
+            };
 
             tasks.Add(newTask);
 
             _memoryCache.Set(CACHE_KEY, tasks);
 
-            return Ok(tasks);
+            return Ok(newTask);
         }
 
-        [HttpPut("{id}/edit", Name = "EditTask")]
-        public IActionResult EditTask(int id, [FromBody] Models.Task editedTask)
+        [HttpPut("{taskId}/edit", Name = "EditTask")]
+        public IActionResult EditTask(string taskId, [FromBody] Models.Task editedTask)
         {
             var tasks = _memoryCache.Get<List<Models.Task>>(CACHE_KEY) ?? new List<Models.Task>();
 
@@ -64,7 +67,7 @@ namespace todo_app.Server.Controllers
                 return BadRequest("Task with this name already exists.");
             }
 
-            var taskToEdit = tasks.FirstOrDefault(task => task.Id == id);
+            var taskToEdit = tasks.FirstOrDefault(task => task.Id == taskId);
 
             if(taskToEdit == null)
             {
@@ -77,15 +80,15 @@ namespace todo_app.Server.Controllers
 
             _memoryCache.Set(CACHE_KEY, tasks);
 
-            return Ok(tasks);
+            return Ok(taskToEdit);
         }
 
-        [HttpDelete("{id}/delete", Name = "DeleteTask")]
-        public IActionResult DeleteTask(int id)
+        [HttpDelete("{taskId}/delete", Name = "DeleteTask")]
+        public IActionResult DeleteTask(string taskId)
         {
             var tasks = _memoryCache.Get<List<Models.Task>>(CACHE_KEY) ?? new List<Models.Task>();
 
-            var taskToDelete = tasks.FirstOrDefault(task => task.Id == id);
+            var taskToDelete = tasks.FirstOrDefault(task => task.Id == taskId);
 
             if (taskToDelete == null)
             {
@@ -97,11 +100,11 @@ namespace todo_app.Server.Controllers
                 return BadRequest("Finish your task first, lazy potato...");
             }
 
-            tasks.RemoveAll(task => task.Id == id);
+            tasks.RemoveAll(task => task.Id == taskId);
 
             _memoryCache.Set(CACHE_KEY, tasks);
 
-            return Ok(tasks);
+            return Ok(taskId);
         }
     }
 }
