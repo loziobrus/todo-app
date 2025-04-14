@@ -1,10 +1,8 @@
-import Status from "./Status";
+import { Status } from "./Status";
 
-interface Task {
+export type Task = {
   id: string;
   name: string;
   status: Status;
   priority: number;
-}
-
-export default Task;
+};

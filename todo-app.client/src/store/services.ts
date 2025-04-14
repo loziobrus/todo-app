@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import Task from "../types/Task";
+import { Task } from "../types";
 
-const API_URL = "http://localhost:5210/api"; // Replace with your actual API URL
+const API_URL = "http://localhost:5210/api";
 
 export const fetchTasks = createAsyncThunk<Task[]>(
   "tasks/fetchTasks",
@@ -22,9 +22,11 @@ export const addTask = createAsyncThunk<Task, string>(
         },
         body: JSON.stringify(taskName),
       });
+
       if (!response.ok) {
-        throw new Error("Failed to add task");
+        throw new Error(await response.text());
       }
+
       return response.json();
     } catch (error) {
       return rejectWithValue(error);
@@ -43,9 +45,11 @@ export const editTask = createAsyncThunk<Task, Task>(
         },
         body: JSON.stringify(task),
       });
+
       if (!response.ok) {
-        throw new Error("Failed to edit task");
+        throw new Error(await response.text());
       }
+
       return response.json();
     } catch (error) {
       return rejectWithValue(error);
@@ -59,11 +63,16 @@ export const deleteTask = createAsyncThunk<string, string>(
     try {
       const response = await fetch(`${API_URL}/task/${taskId}/delete`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
+
       if (!response.ok) {
-        throw new Error("Failed to delete task");
+        throw new Error(await response.text());
       }
-      return response.json();
+
+      return response.text();
     } catch (error) {
       return rejectWithValue(error);
     }

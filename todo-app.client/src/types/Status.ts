@@ -1,7 +1,5 @@
-enum Status {
+export enum Status {
   NotStarted,
-  InProsgress,
+  InProgress,
   Completed,
 }
-
-export default Status;

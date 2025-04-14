@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import Task from "../types/Task";
 import { addTask, deleteTask, editTask, fetchTasks } from "./services";
+import { Task } from "../types";
 
 interface TaskState {
   tasks: Task[];
@@ -14,49 +14,77 @@ const initialState: TaskState = {
   error: null,
 };
 
-const handlePending = (state: TaskState) => {
-  state.loading = true;
+const handleRejected = (state: TaskState, action: PayloadAction<unknown>) => {
+  state.error = (action.payload as Error).message;
 };
 
-const handleRejected = (state: TaskState, action: PayloadAction<unknown>) => {
-  state.loading = false;
-  state.error = action.payload as string;
-};
+const handleFulfilled =
+  (onSuccess: Function) =>
+  (state: TaskState, action: PayloadAction<unknown>) => {
+    onSuccess(state, action);
+    state.error = "";
+  };
 
 const taskSlice = createSlice({
   name: "tasks",
   initialState,
-  reducers: {},
+  reducers: {
+    setError: (state, action: PayloadAction<string>) => {
+      state.error = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchTasks.pending, handlePending)
-      .addCase(fetchTasks.fulfilled, (state, action) => {
-        state.tasks = action.payload;
-        state.loading = false;
+      .addCase(fetchTasks.pending, (state) => {
+        state.loading = true;
       })
-      .addCase(fetchTasks.rejected, handleRejected)
-      .addCase(addTask.pending, handlePending)
-      .addCase(addTask.fulfilled, (state, action) => {
-        state.tasks.push(action.payload);
-        state.loading = false;
-      })
+      .addCase(
+        fetchTasks.fulfilled,
+        handleFulfilled((state: TaskState, action: PayloadAction<Task[]>) => {
+          state.tasks = action.payload;
+          state.loading = false;
+        })
+      )
+      .addCase(
+        addTask.fulfilled,
+        handleFulfilled((state: TaskState, action: PayloadAction<Task>) => {
+          state.tasks.unshift(action.payload);
+        })
+      )
       .addCase(addTask.rejected, handleRejected)
-      .addCase(editTask.pending, handlePending)
-      .addCase(editTask.fulfilled, (state, action) => {
-        const index = state.tasks.findIndex(
-          (task) => task.id === action.payload.id
-        );
-        state.tasks[index] = action.payload;
-        state.loading = false;
-      })
+      .addCase(
+        editTask.fulfilled,
+        handleFulfilled((state: TaskState, action: PayloadAction<Task>) => {
+          const index = state.tasks.findIndex(
+            (task) => task.id === action.payload.id
+          );
+          const priorityChanged =
+            state.tasks[index].priority !== action.payload.priority;
+          state.tasks[index] = action.payload;
+
+          if (priorityChanged) {
+            state.tasks = state.tasks.sort((a, b) => {
+              if (a.priority === b.priority) {
+                return a.name.localeCompare(b.name);
+              }
+              return a.priority - b.priority;
+            });
+          }
+        })
+      )
       .addCase(editTask.rejected, handleRejected)
-      .addCase(deleteTask.pending, handlePending)
-      .addCase(deleteTask.fulfilled, (state, action) => {
-        state.tasks = state.tasks.filter((task) => task.id !== action.payload);
-        state.loading = false;
-      })
+      .addCase(
+        deleteTask.fulfilled,
+        handleFulfilled((state: TaskState, action: PayloadAction<string>) => {
+          state.tasks = state.tasks.filter(
+            (task) => task.id !== action.payload
+          );
+        })
+      )
       .addCase(deleteTask.rejected, handleRejected);
   },
 });
+
+export const { setError } = taskSlice.actions;
 
 export default taskSlice.reducer;
