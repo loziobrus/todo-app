@@ -32,6 +32,20 @@ const taskSlice = createSlice({
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
     },
+    changePriority: (
+      state,
+      action: PayloadAction<{ taskId: string; priority: number }>
+    ) => {
+      const index = state.tasks.findIndex(
+        (task) => task.id === action.payload.taskId
+      );
+
+      const newTask = { ...state.tasks[index + 1], name: "changed task" };
+
+      state.tasks[index + 1] = newTask;
+
+      state.tasks = [...state.tasks];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -85,6 +99,6 @@ const taskSlice = createSlice({
   },
 });
 
-export const { setError } = taskSlice.actions;
+export const { setError, changePriority } = taskSlice.actions;
 
 export default taskSlice.reducer;

@@ -22,7 +22,7 @@ namespace todo_app.Server.Controllers
         [HttpGet("getTaskList", Name = "GetTaskList")]
         public IActionResult GetTaskList()
         {
-            List<Models.Task> tasks = _memoryCache.Get<List<Models.Task>>(CACHE_KEY)?.OrderBy(o => o.Priority).ToList() ?? new List<Models.Task>();
+            List<Models.Task> tasks = _memoryCache.Get<List<Models.Task>>(CACHE_KEY)?.OrderByDescending(o => o.Priority).ToList() ?? new List<Models.Task>();
 
             return Ok(tasks);
         }
@@ -47,7 +47,8 @@ namespace todo_app.Server.Controllers
                 Id = Guid.NewGuid().ToString(),
                 Name = taskName,
                 Priority = 1,
-                Status = Status.NotStarted
+                Status = Status.NotStarted,
+                Category = Category.Normal
             };
 
             tasks.Add(newTask);
@@ -72,6 +73,11 @@ namespace todo_app.Server.Controllers
             if(taskToEdit == null)
             {
                 return NotFound("Task not found.");
+            }
+
+            if(editedTask.Priority >= 3)
+            {
+                taskToEdit.Category = Category.Urgent;
             }
 
             taskToEdit.Status = editedTask.Status;

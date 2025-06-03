@@ -1,3 +1,4 @@
+import { Category } from "./Category";
 import { Status } from "./Status";
 
 export type Task = {
@@ -5,4 +6,5 @@ export type Task = {
   name: string;
   status: Status;
   priority: number;
+  category: Category;
 };

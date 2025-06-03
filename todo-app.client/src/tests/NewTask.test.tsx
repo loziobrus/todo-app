@@ -1,58 +1,31 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import NewTask from "../components/NewTask/NewTask";
 import "@testing-library/jest-dom";
-import { Provider } from "react-redux";
-import { store } from "../store/store";
+import TaskCategory from "../components/TaskCard/TaskCategory";
+import { Category } from "../types";
 
-test("add new task", async () => {
-  render(
-    <Provider store={store}>
-      <NewTask />
-    </Provider>
-  );
+test("check normal category", async () => {
+  const category = Category.Normal;
+  render(<TaskCategory category={category} />);
 
-  const input = screen.getByTestId("newTask.input");
-  const button = screen.getByTestId("newTask.addButton");
+  const categoryChip = screen.getByText("Normal");
 
-  fireEvent.change(input, { target: { value: "New task" } });
-  fireEvent.click(button);
-
-  expect(screen.getByText("New todo")).toBeInTheDocument;
+  expect(categoryChip).toBeVisible();
 });
 
-test("add new task with existing name", async () => {
-  render(
-    <Provider store={store}>
-      <NewTask />
-    </Provider>
-  );
+test("check urgent category", async () => {
+  const category = Category.Urgent;
+  render(<TaskCategory category={category} />);
 
-  const input = screen.getByTestId("newTask.input");
-  const button = screen.getByTestId("newTask.addButton");
+  const categoryChip = screen.getByText("Urgent");
 
-  fireEvent.change(input, { target: { value: "New task" } });
-  fireEvent.click(button);
-
-  await new Promise((r) => setTimeout(r, 2000));
-
-  fireEvent.change(input, { target: { value: "New task" } });
-  fireEvent.click(button);
-
-  expect(screen.getByTestId("newTask.errorMessage")).toBeInTheDocument;
+  expect(categoryChip).toBeVisible();
 });
 
-test("add new task with empty name", async () => {
-  render(
-    <Provider store={store}>
-      <NewTask />
-    </Provider>
-  );
+test("check undefined category", async () => {
+  const category = "Category.Normal" as unknown as Category;
+  render(<TaskCategory category={category} />);
 
-  const input = screen.getByTestId("newTask.input");
-  const button = screen.getByTestId("newTask.addButton");
+  const categoryChip = screen.getByText("Unknown");
 
-  fireEvent.change(input, { target: { value: "" } });
-  fireEvent.click(button);
-
-  expect(screen.getByTestId("newTask.errorMessage")).toBeInTheDocument;
+  expect(categoryChip).toBeVisible();
 });

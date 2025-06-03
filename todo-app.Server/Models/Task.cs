@@ -9,5 +9,7 @@ namespace todo_app.Server.Models
         public int Priority { get; set; }
 
         public Status Status { get; set; }
+
+        public Category Category { get; set; }
     }
 }

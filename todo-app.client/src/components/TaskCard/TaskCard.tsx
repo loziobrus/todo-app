@@ -7,21 +7,30 @@ import {
 } from "@mui/material";
 import { DeleteOutline } from "@mui/icons-material";
 import { Task, Status } from "../../types";
-import { useAppDispatch } from "../../store/store";
+import { useAppDispatch, useAppSelector } from "../../store/store";
 import { deleteTask, editTask } from "../../store/services";
 import useValidation from "../../hooks/useValidation";
 import TaskProgress from "./TaskProgress";
 import TaskPriority from "./TaskPriority";
 import TaskName from "./TaskName";
 import "./styles.css";
+import TaskCategory from "./TaskCategory";
+import { changePriority } from "../../store/taskSlice";
 
 interface TaskCardProps {
-  task: Task;
+  taskId: string;
 }
 
-const TaskCard = ({ task }: TaskCardProps) => {
+const TaskCard = ({ taskId }: TaskCardProps) => {
   const dispatch = useAppDispatch();
+  const task = useAppSelector((state) =>
+    state.tasks.tasks.find((task) => task.id === taskId)
+  );
   const { canDelete } = useValidation();
+
+  if (!task) {
+    return null;
+  }
 
   const handleDelete = () => {
     if (canDelete(task.id)) {
@@ -34,7 +43,7 @@ const TaskCard = ({ task }: TaskCardProps) => {
   };
 
   const handlePriorityChange = (priority: number) => {
-    dispatch(editTask({ ...task, priority }));
+    dispatch(changePriority({ taskId, priority }));
   };
 
   const handleNameChange = (name: string) => {
@@ -54,6 +63,7 @@ const TaskCard = ({ task }: TaskCardProps) => {
               status={task.status}
               onStatusChange={handleStatusChange}
             />
+            <TaskCategory category={task.category} />
           </div>
         }
       />
